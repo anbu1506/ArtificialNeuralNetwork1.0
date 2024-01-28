@@ -37,8 +37,6 @@ class NN:
         for i in range(no_of_hidden_layers):
             self.neurons_count.append(hidden_layer_size)
         self.neurons_count.append(1)
-        all_weights=[]
-        all_biases=[]
         for i in range(len(self.neurons_count)-1):
             weights = np.random.rand(self.neurons_count[i+1],self.neurons_count[i])
             biases = np.zeros((self.neurons_count[i+1],1))
@@ -55,7 +53,7 @@ class NN:
             self.forward_cache["a"][i] = np.tanh(self.forward_cache["z"][i])
         self.forward_cache["z"][len(self.neurons_count)-1] =  np.dot(self.weights[len(self.neurons_count)-2],self.forward_cache["a"][len(self.neurons_count)-2])+self.biases[len(self.neurons_count)-2]
         self.forward_cache["a"][len(self.neurons_count)-1] =1/(1+ np.exp(-self.forward_cache["z"][len(self.neurons_count)-1]))
-        print(self.forward_cache)
+        # print(self.forward_cache)
     
     def cost_function(self,y):  # y is the actual label
         m = y.shape[0]  
@@ -75,6 +73,7 @@ class NN:
         self.derivatives["dw"] = {}
 
         m = y.shape[0]
+        print(m)
 
 
         self.derivatives["dz"][len(self.neurons_count)-1] = self.forward_cache["a"][len(self.neurons_count)-1] - y
@@ -89,24 +88,36 @@ class NN:
             self.derivatives["dw"][i] = (1/m)*np.dot(self.forward_cache["z"][i],self.forward_cache["a"][i-1].T)
 
             self.derivatives["db"][i] = np.mean(self.derivatives["dz"][i],axis=1,keepdims=True)
+        # print("the gradients are :",self.derivatives)
 
 
     def update_params(self,learning_rate):
         for i in range(len(self.weights)):
             self.weights[i] -= learning_rate * self.derivatives["dw"][i+1]
             self.biases[i] -= learning_rate * self.derivatives["db"][i+1]
+        # print("the updated params are :",self.weights,self.biases)
 
+    def fit(self,data,label,epoch,learning_rate):
 
+        for i in range(epoch):
+            self.forward_propagation(data.T*data.T)
+            self.cost_function(label)
+            self.back_propogation(label)
+            self.update_params(learning_rate)
 
-
-
-
-# input = np.array([1,2,3]).reshape(3,1)
-# label = np.array([1,0,1])
-model = NN(2,2,3)
-model.forward_propagation(data.T)
-model.cost_function(label)
-model.back_propogation(label)
-model.update_params(0.3)
-model.forward_propagation(data.T)
-model.cost_function(label)
+    def predict(self,data):
+        forward_cache={}
+        forward_cache["a"] = {}
+        forward_cache["z"] = {}
+        forward_cache["a"][0] = data
+        for i in range(1,len(self.neurons_count)-1):
+            forward_cache["z"][i] =  np.dot(self.weights[i-1],forward_cache["a"][i-1])+self.biases[i-1]
+            forward_cache["a"][i] = np.tanh(forward_cache["z"][i])
+        forward_cache["z"][len(self.neurons_count)-1] =  np.dot(self.weights[len(self.neurons_count)-2],forward_cache["a"][len(self.neurons_count)-2])+self.biases[len(self.neurons_count)-2]
+        forward_cache["a"][len(self.neurons_count)-1] =1/(1+ np.exp(-forward_cache["z"][len(self.neurons_count)-1]))
+        # print(forward_cache)
+        return forward_cache
+    
+model = NN(2,2,2)
+# model.forward_propagation(data.T)
+model.fit(data,label,200,0.3)
