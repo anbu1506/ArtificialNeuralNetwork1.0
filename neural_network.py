@@ -32,8 +32,29 @@ class NN:
             self.forward_cache["z"][i] =  np.dot(self.weights[i-1],self.forward_cache["a"][i-1])+self.biases[i-1]
             self.forward_cache["a"][i] = np.tanh(self.forward_cache["z"][i])
         print(self.forward_cache)
-        return self
+    
+    def cost_function(self,y):
+        m = y.shape[0]  
+        epsilon = 1e-15  
+
+        # Clip predicted values to avoid numerical instability
+        self.forward_cache["a"][len(self.neurons_count)-1] = np.clip(self.forward_cache["a"][len(self.neurons_count)-1], epsilon, 1 - epsilon)
+
+        # Binary cross-entropy formula
+        cost = - (1 / m) * np.sum(y * np.log(self.forward_cache["a"][len(self.neurons_count)-1]) + (1 - y) * np.log(1 - self.forward_cache["a"][len(self.neurons_count)-1]))
+        print("the cost is:",cost)
+        return cost
+    
+    
+        
+
+
+
+
+
 
 input = np.array([1,2,3]).reshape(3,1)
 
-NN(3,2,3).forward_propagation(input)
+model = NN(3,2,3)
+model.forward_propagation(input)
+model.cost_function()
