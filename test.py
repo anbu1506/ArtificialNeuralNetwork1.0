@@ -34,10 +34,14 @@
 
 # input = np.array([1,2,3]).reshape(3,1)
 # label = np.array([1,0,1])
-model = NN(2,2,3)
-model.forward_propagation(data.T)
-model.cost_function(label)
-model.back_propogation(label)
-model.update_params(0.3)
-model.forward_propagation(data.T)
-model.cost_function(label)
+# model = NN(2,2,3)
+# model.forward_propagation(data.T)
+# model.cost_function(label)
+# model.back_propogation(label)
+# model.update_params(0.3)
+# model.forward_propagation(data.T)
+# model.cost_function(label)
+
+
+for i in range(2,0,-1):
+    print(i)
